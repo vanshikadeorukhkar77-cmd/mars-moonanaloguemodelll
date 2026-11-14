@@ -140,7 +140,7 @@ except Exception as exc:
 # Select planetary body
 body = st.radio(
     "Choose planetary body",
-    ["Mars", "The Moon"],
+    ["Mars", "Moon"],
     horizontal=True
 )
 
