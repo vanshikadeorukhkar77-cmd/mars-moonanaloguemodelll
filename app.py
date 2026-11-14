@@ -19,7 +19,7 @@ def get_data():
     return load_all_data()
 
 
-st.title("🌍 Mars & Moon Terrestrial Analogue Model")
+st.title("🌍 Vanshika is the best person ever")
 
 st.write(
     "Locate a Mars or Moon quadrangle using coordinates "
@@ -39,14 +39,14 @@ except Exception as exc:
 # Select planetary body
 body = st.radio(
     "Choose planetary body",
-    ["Mars", "Moon"],
+    ["Mars", "The Moon"],
     horizontal=True
 )
 
 
 entry_type = st.radio(
     "Choose coordinate input type",
-    ["One coordinate", "A coordinate range"],
+    ["One coordinate", "A range of coordinates"],
     horizontal=True
 )
 
@@ -183,7 +183,7 @@ if submitted:
         else:
 
             st.success(
-                f"{body} quadrangle found: {match['quadrangle']}"
+                f"{body} Yay! quadrangle found: {match['quadrangle']}"
             )
 
             # Retrieve original quadrangle row
@@ -296,10 +296,9 @@ if submitted:
 st.divider()
 
 st.caption(
-    "Scientific note: The similarity engine is a provisional "
+    "Vanshika's note: The similarity engine is a provisional "
     "weighted-distance ranking, not a trained ML classifier. "
-    "The supplied Earth workbook contains approximate and "
-    "modelled values. Results should be treated as exploratory, "
-    "not scientifically validated predictions. Missing values "
-    "are excluded rather than treated as zero."
+    "The supplied Earth workbook DOES NOT contain values "
+    "that are 100% correct :(. Results should be treated as exploratory, "
+    "not scientifically validated predictions."
 )
