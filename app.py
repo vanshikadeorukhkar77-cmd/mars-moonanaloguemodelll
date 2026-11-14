@@ -19,8 +19,27 @@ st.markdown("""
 
 /* Main background */
 .stApp {
-    background-color: #101820;
-    color: #FFFFFF;
+    background-color: #061329;
+
+    background-image:
+        radial-gradient(circle, white 1px, transparent 1.5px),
+        radial-gradient(circle, white 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255,255,255,0.7) 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1.5px);
+
+    background-size:
+        100px 100px,
+        150px 150px,
+        200px 200px,
+        120px 120px;
+
+    background-position:
+        0 0,
+        40px 60px,
+        100px 30px,
+        70px 90px;
+
+    color: white;
 }
 
 /* All general text */
