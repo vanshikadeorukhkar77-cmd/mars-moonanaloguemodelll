@@ -120,7 +120,7 @@ def get_data():
     return load_all_data()
 
 
-st.title("🌍 Vanshika is the best person ever")
+st.title("🎀 Vanshika is the best person ever")
 
 st.write(
     "Locate a Mars or Moon quadrangle using coordinates "
