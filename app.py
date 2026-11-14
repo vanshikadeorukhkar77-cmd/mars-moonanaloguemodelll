@@ -19,7 +19,7 @@ st.markdown("""
 
 /* Main background */
 .stApp {
-    background-color: #061329;
+    background-color: #202734;
 
     background-image:
         radial-gradient(circle, white 1px, transparent 1.5px),
