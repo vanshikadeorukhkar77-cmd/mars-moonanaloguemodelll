@@ -14,6 +14,88 @@ st.set_page_config(
 )
 
 
+st.markdown("""
+<style>
+
+/* Main background */
+.stApp {
+    background-color: #101820;
+    color: #FFFFFF;
+}
+
+/* All general text */
+.stApp,
+.stApp p,
+.stApp label,
+.stApp span,
+.stApp li {
+    color: #FFFFFF;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #1B2836;
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+    color: #E6B566 !important;
+}
+
+/* Input fields */
+.stNumberInput input,
+.stTextInput input {
+    background-color: #253746;
+    color: #FFFFFF;
+    border: 1px solid #E6B566;
+}
+
+/* Buttons */
+.stButton button,
+.stFormSubmitButton button {
+    background-color: #C77D3B;
+    color: #FFFFFF;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+}
+
+/* Button hover */
+.stButton button:hover,
+.stFormSubmitButton button:hover {
+    background-color: #E6B566;
+    color: #101820;
+}
+
+/* Metrics */
+[data-testid="stMetric"] {
+    background-color: #1B2836;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+/* Expanders */
+[data-testid="stExpander"] {
+    background-color: #1B2836;
+    border: 1px solid #E6B566;
+    border-radius: 10px;
+}
+
+/* Links */
+a {
+    color: #E6B566 !important;
+}
+
+/* Dividers */
+hr {
+    border-color: #526273;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+
 @st.cache_data
 def get_data():
     return load_all_data()
