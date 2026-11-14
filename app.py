@@ -284,7 +284,7 @@ if submitted:
         else:
 
             st.success(
-                f"{body} Yay! quadrangle found: {match['quadrangle']}"
+                f"Yay! {body} quadrangle found: {match['quadrangle']}"
             )
 
             # Retrieve original quadrangle row
