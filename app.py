@@ -1,13 +1,16 @@
 
 import streamlit as st
+
 from data_loader import load_all_data
 from coordinate_processor import process_coordinates
 from quadrangle_finder import find_quadrangle
+from similarity import rank_earth_analogues
+
 
 st.set_page_config(
     page_title="Mars & Moon Analogue Model",
     page_icon="🌍",
-    layout="centered"
+    layout="wide"
 )
 
 
@@ -19,34 +22,36 @@ def get_data():
 st.title("🌍 Mars & Moon Terrestrial Analogue Model")
 
 st.write(
-    "Identify terrestrial analogues for selected locations "
-    "on Mars and the Moon."
+    "Locate a Mars or Moon quadrangle using coordinates "
+    "and identify the three closest Earth analogue locations."
 )
 
-st.info(
-    "Enter a coordinate or coordinate range to identify "
-    "the corresponding quadrangle."
-)
 
+# Load datasets
 try:
     data = get_data()
+
 except Exception as exc:
-    st.error(f"Could not load the datasets: {exc}")
+    st.error(f"Could not load Excel datasets: {exc}")
     st.stop()
 
 
+# Select planetary body
 body = st.radio(
-    "Choose the celestial body",
+    "Choose planetary body",
     ["Mars", "Moon"],
     horizontal=True
 )
 
+
 entry_type = st.radio(
-    "Coordinate input",
+    "Choose coordinate input type",
     ["One coordinate", "A coordinate range"],
     horizontal=True
 )
 
+
+# Coordinate input
 with st.form("coordinate_form"):
 
     if entry_type == "One coordinate":
@@ -58,7 +63,8 @@ with st.form("coordinate_form"):
                 "Latitude (°)",
                 min_value=-90.0,
                 max_value=90.0,
-                value=0.0
+                value=0.0,
+                step=0.1
             )
 
         with col2:
@@ -66,48 +72,65 @@ with st.form("coordinate_form"):
                 "Longitude (°)",
                 min_value=-180.0,
                 max_value=360.0,
-                value=0.0
+                value=0.0,
+                step=0.1
             )
 
-        submitted = st.form_submit_button("Find analogues")
+        submitted = st.form_submit_button(
+            "Find quadrangle and Earth analogues",
+            type="primary"
+        )
 
     else:
 
-        col1, col2 = st.columns(2)
+        st.caption(
+            "Enter the latitude and longitude limits "
+            "of your rectangular region."
+        )
 
-        with col1:
+        c1, c2 = st.columns(2)
+
+        with c1:
             lat_min = st.number_input(
                 "Minimum latitude (°)",
                 min_value=-90.0,
                 max_value=90.0,
-                value=-10.0
+                value=-10.0,
+                step=0.1
             )
 
             lon_start = st.number_input(
                 "Starting longitude (°)",
                 min_value=-180.0,
                 max_value=360.0,
-                value=0.0
+                value=0.0,
+                step=0.1
             )
 
-        with col2:
+        with c2:
             lat_max = st.number_input(
                 "Maximum latitude (°)",
                 min_value=-90.0,
                 max_value=90.0,
-                value=10.0
+                value=10.0,
+                step=0.1
             )
 
             lon_end = st.number_input(
                 "Ending longitude (°)",
                 min_value=-180.0,
                 max_value=360.0,
-                value=20.0
+                value=20.0,
+                step=0.1
             )
 
-        submitted = st.form_submit_button("Find analogues")
+        submitted = st.form_submit_button(
+            "Calculate midpoint and compare",
+            type="primary"
+        )
 
 
+# Process submitted coordinates
 if submitted:
 
     try:
@@ -128,6 +151,19 @@ if submitted:
                 lon_end=lon_end
             )
 
+
+        # Display processed coordinates
+        st.subheader("Processed coordinates")
+
+        col1, col2 = st.columns(2)
+
+        col1.metric("Latitude", f"{lat:.4f}°")
+        col2.metric("East longitude", f"{lon:.4f}°")
+
+        st.caption(method)
+
+
+        # Find quadrangle
         match = find_quadrangle(
             body,
             lat,
@@ -136,38 +172,134 @@ if submitted:
             data["moon_index"]
         )
 
+
         if match is None:
 
             st.warning(
                 "No quadrangle was found for these coordinates. "
-                "Please check your input."
+                "Please check the input and dataset coverage."
             )
 
         else:
 
-            st.success("Quadrangle successfully identified!")
-
-            st.write(f"**Selected body:** {body}")
-
-            st.write(
-                f"**Quadrangle:** {match['quadrangle']}"
+            st.success(
+                f"{body} quadrangle found: {match['quadrangle']}"
             )
 
-            st.caption(method)
+            # Retrieve original quadrangle row
+            if body == "Mars":
 
-            st.info(
-                "The quadrangle's parameter data has been retrieved "
-                "internally. The terrestrial analogue comparison "
-                "will appear here once the similarity engine is added."
-            )
+                raw_df = data["mars_raw"]
+                id_col = "Quad"
+
+                st.write(
+                    f"**Quadrangle name:** {match['name']}"
+                )
+
+            else:
+
+                raw_df = data["moon_raw"]
+                id_col = "Quadrangle"
+
+
+            raw_matches = raw_df[
+                raw_df[id_col].astype(str)
+                == str(match["quadrangle"])
+            ]
+
+
+            if raw_matches.empty:
+
+                st.error(
+                    "Could not retrieve the selected quadrangle data."
+                )
+
+            else:
+
+                quadrangle_row = raw_matches.iloc[0]
+
+
+                # Earth analogue comparison
+                st.divider()
+
+                st.header("🌎 Top 3 Earth Analogue Locations")
+
+                with st.spinner(
+                    "Calculating Earth analogue similarities..."
+                ):
+
+                    ranked, details = rank_earth_analogues(
+                        body,
+                        quadrangle_row,
+                        data["earth_sheets"],
+                        top_n=3
+                    )
+
+
+                if ranked.empty:
+
+                    st.warning(
+                        "Not enough shared numeric parameters "
+                        "were available for comparison."
+                    )
+
+                else:
+
+                    st.caption(
+                        "Results are ranked using a provisional "
+                        "weighted similarity calculation. "
+                        "Data coverage shows how many configured "
+                        "parameters could be compared."
+                    )
+
+                    st.dataframe(
+                        ranked,
+                        hide_index=True,
+                        use_container_width=True
+                    )
+
+
+                    # Detailed parameter comparisons
+                    st.subheader(
+                        "Parameter-level comparison"
+                    )
+
+                    for _, result in ranked.iterrows():
+
+                        place = result["Earth analogue"]
+
+                        with st.expander(
+                            f"#{int(result['Rank'])} — {place} "
+                            f"({result['Similarity (%)']:.1f}% similarity)"
+                        ):
+
+                            subset = details[
+                                details["Earth analogue"] == place
+                            ].drop(
+                                columns=["Earth analogue"]
+                            )
+
+                            st.dataframe(
+                                subset,
+                                hide_index=True,
+                                use_container_width=True
+                            )
+
 
     except Exception as exc:
 
-        st.error(str(exc))
+        st.error(
+            f"Could not complete the comparison: {exc}"
+        )
 
 
 st.divider()
 
 st.caption(
-    "Mars and Moon terrestrial analogue identification model."
+    "Scientific note: The similarity engine is a provisional "
+    "weighted-distance ranking, not a trained ML classifier. "
+    "The supplied Earth workbook contains approximate and "
+    "modelled values. Results should be treated as exploratory, "
+    "not scientifically validated predictions. Missing values "
+    "are excluded rather than treated as zero."
 )
