@@ -371,7 +371,7 @@ def rank_earth_analogues(
     body,
     quadrangle_row,
     earth_sheets,
-    top_n=3
+    top_n=10
 ):
 
     body = body.strip().lower()
