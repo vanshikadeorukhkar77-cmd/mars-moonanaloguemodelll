@@ -367,12 +367,13 @@ def _feature_definitions(body):
     ]
 
 
-def ranked, details = rank_earth_analogues(
+def rank_earth_analogues(
     body,
     quadrangle_row,
-    data["earth_sheets"],
-    top_n=10
-)
+    earth_sheets,
+    top_n=3
+):
+
 
     body = body.strip().lower()
 
